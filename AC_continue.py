@@ -32,29 +32,60 @@ class Actor(object):
             name='l1'
         )
 
-        mu = tf.layers.dense(
+        # l2 = tf.layers.dense(
+        #     inputs=self.s,
+        #     units=30,  # number of hidden units
+        #     activation=tf.nn.relu,
+        #     kernel_initializer=tf.random_normal_initializer(0., .1),  # weights
+        #     bias_initializer=tf.constant_initializer(0.0),  # biases
+        #     name='l2'
+        # )
+
+        mu_acc = tf.layers.dense(
             inputs=l1,
-            units=2,  # number of hidden units
+            units=1,  # number of hidden units
             activation=tf.nn.tanh,
             kernel_initializer=tf.random_normal_initializer(0., .1),  # weights
             bias_initializer=tf.constant_initializer(0.),  # biases
-            name='mu'
+            name='mu_a'
         )
 
-        sigma = tf.layers.dense(
+        sigma_acc = tf.layers.dense(
             inputs=l1,
-            units=2,  # output units
+            units=1,  # output units
             activation=tf.nn.softplus,  # get action probabilities
             kernel_initializer=tf.random_normal_initializer(0., .1),  # weights
             bias_initializer=tf.constant_initializer(0.),  # biases
-            name='sigma'
+            name='sigma_a'
         )
+
+        mu_phi = tf.layers.dense(
+            inputs=l1,
+            units=1,  # number of hidden units
+            activation=tf.nn.tanh,
+            kernel_initializer=tf.random_normal_initializer(0., .1),  # weights
+            bias_initializer=tf.constant_initializer(0.),  # biases
+            name='mu_phi'
+        )
+
+        sigma_phi = tf.layers.dense(
+            inputs=l1,
+            units=1,  # output units
+            activation=tf.nn.softplus,  # get action probabilities
+            kernel_initializer=tf.random_normal_initializer(0., .1),  # weights
+            bias_initializer=tf.constant_initializer(0.),  # biases
+            name='sigma_phi'
+        )
+
         global_step = tf.Variable(0, trainable=False)
 
-        self.mu, self.sigma = tf.squeeze(mu*2), tf.squeeze(sigma+0.1)  # 删除大小是1的维度
-        self.normal_dist = tf.distributions.Normal(self.mu, self.sigma)
+        self.mu_acc, self.sigma_acc = tf.squeeze(mu_acc*2), tf.squeeze(sigma_acc+0.1)  # 删除大小是1的维度
+        self.mu_phi, self.sigma_phi = tf.squeeze(mu_phi * 2), tf.squeeze(sigma_phi + 0.1)  # 删除大小是1的维度
+        # self.alpha = (self.mu[0] / self.sigma[0])**2
+        # self.beta = self.mu[0] / (self.sigma[0] ** 2)
 
-        self.action = tf.clip_by_value(self.normal_dist.sample(1), action_bound[0], action_bound[1])  # 从正态分布中采样
+        self.normal_dist = tf.distributions.Normal([self.mu_acc, self.mu_phi], [self.sigma_acc, self.sigma_phi])
+        self.action = tf.clip_by_value(self.normal_dist.sample(1), action_bound[0], action_bound[1])  # 从Normal分布中采样
 
         with tf.name_scope('exp_v'):
             log_prob = self.normal_dist.log_prob(self.a)  # loss without advantage
@@ -79,17 +110,21 @@ class Actor(object):
         feed_dict = {self.s: s, self.a: a, self.td_error: td}
         _, exp_v = self.sess.run([self.train_op, self.exp_v], feed_dict)
 
-        mu = self.mu.eval(session=self.sess, feed_dict=feed_dict)
-        sigma = self.sigma.eval(session=self.sess, feed_dict=feed_dict)
-        self.mu_list.append(mu)
-        self.sigma_list.append(sigma)
-        print("/ MEAN: ", mu, "  / SIGMA: ", sigma)
+        mu1 = self.mu_acc.eval(session=self.sess, feed_dict=feed_dict)
+        sigma1 = self.sigma_acc.eval(session=self.sess, feed_dict=feed_dict)
+        mu2 = self.mu_phi.eval(session=self.sess, feed_dict=feed_dict)
+        sigma2 = self.sigma_phi.eval(session=self.sess, feed_dict=feed_dict)
+
+        self.mu_list.append([mu1, mu2])
+        self.sigma_list.append([sigma1, sigma2])
+        print("/ MEAN: ", [mu1, mu2], "  / SIGMA: ", [sigma1, sigma2])
 
         self.time_step += 1
         return exp_v
 
     def choose_action(self, s):
         s = s[np.newaxis, :]
+        #self.action = [self.action1, self.action2]
         return self.sess.run(self.action, {self.s: s})  # get probabilities for all actions
 
     def save_model(self, save_step):

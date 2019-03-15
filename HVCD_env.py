@@ -9,9 +9,6 @@ import tensorflow as tf
 from AC_continue import Actor, Critic
 
 directory = 'HVCD_csv/'
-# e_index = 3
-# index = str(e_index+1)
-# csv_name = directory + index + '.csv'
 
 state_dim = 4
 action_dim = 2
@@ -42,18 +39,17 @@ EPISODES = 9
 LR_A = 0.001    # learning rate for actor
 LR_C = 0.01     # learning rate for critic
 UPPER_BOUND = [0.50, 3.14/6]
-LOWER_BOUND = [-0.02, -3.14/6]
+LOWER_BOUND = [-0.1, -3.14/6]
 SAVE_STEP = 1000
 
 
-# ep_s, ep_a, ep_r = read_data(csv_name)
-# where_inf = np.isinf(ep_r)
 if __name__ == "__main__":
     sess = tf.Session()
 
-    actor = Actor(sess=sess, n_features=state_dim, action_bound=[LOWER_BOUND, UPPER_BOUND])
+    actor = Actor(sess=sess, n_features=state_dim, action_bound=[LOWER_BOUND, UPPER_BOUND]) # action1_bound=[0, 0.50], action2_bound=[-3.14/6, 3.14/6])
     critic = Critic(sess, state_dim)
     sess.run(tf.global_variables_initializer())
+
     for e in range(EPISODES):
         index = str(e + 1)
         print("Training the {} episode".format(index))
@@ -84,8 +80,5 @@ if __name__ == "__main__":
     sigma_df = pd.DataFrame(actor.sigma_list)
     mu_df.to_csv('mean.csv')
     sigma_df.to_csv('sigma.csv')
-    
-
-
 
 
