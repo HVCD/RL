@@ -9,7 +9,7 @@ import numpy as np
 import tensorflow as tf
 from AC_continue_online import Actor, Critic
 
-directory = 'HVCD/'
+directory = '..\\..\\HVCD\\'
 
 state_dim = 4
 action_dim = 2
@@ -25,14 +25,14 @@ def reset(state_csv):
 
 def output_action(action):
     acc = str(action[0][0])
-    phi = str(action[1][0])
+    phi = str(action[0][1])
     output_string = acc + '\t' + phi + '\n'
-    action_file = open('HVCD\action.txt', mode='w')
+    action_file = open(directory + 'action.txt', mode='w')
     action_file.write(output_string)
 
 def norm_rewards(ep_rewards):
     ep_rewards -= np.mean(ep_rewards)
-    ep_rewards /= np.std(ep_rewards)
+    ep_rewards /= np.std(ep_rewards) + 1e-7
     return ep_rewards
 
 def step(step_csv):
@@ -67,16 +67,16 @@ EPISODES = 1  # 最大的序列数目
 LR_A = 0.001  # learning rate for actor
 LR_C = 0.01  # learning rate for critic
 UPPER_BOUND = [0.50, 3.14 / 6]
-LOWER_BOUND = [-0.02, -3.14 / 6]
+LOWER_BOUND = [0, -3.14 / 6]
 SAVE_STEP = 1000
 STATE_CSV = 'state.csv'
-STEP_CSV = 'HVCD\step.csv'
+STEP_CSV = directory + 'step.csv'
 
 
 if __name__ == "__main__":
     # 初始化
     sess = tf.Session()
-    actor = Actor(sess, state_dim, action_bound=[LOWER_BOUND, UPPER_BOUND]）
+    actor = Actor(sess, state_dim, action_bound=[LOWER_BOUND, UPPER_BOUND])
     critic = Critic(sess, state_dim)
     sess.run(tf.global_variables_initializer())
 

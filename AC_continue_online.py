@@ -99,7 +99,7 @@ class Actor(object):
 
         # save the parameters
         self.saver = tf.train.Saver()
-        checkpoint = tf.train.get_checkpoint_state("actor_nn")
+        checkpoint = tf.train.get_checkpoint_state("actor_nn_1")
         if checkpoint and checkpoint.model_checkpoint_path:
             self.saver.restore(self.sess, checkpoint.model_checkpoint_path)
             print("Successfully loaded:", checkpoint.model_checkpoint_path)
@@ -131,7 +131,7 @@ class Actor(object):
 
     def save_model(self, save_step):
         if self.time_step % save_step == 0:
-            self.saver.save(self.sess, 'actor_nn/' + 'network' + '-actor' + str(INDEX), global_step=self.time_step)
+            self.saver.save(self.sess, 'actor_nn_2/' + 'network' + '-actor', global_step=self.time_step)
 
 
 class Critic(object):
@@ -144,7 +144,7 @@ class Critic(object):
             self.time_step = 0
 
             self.saver = tf.train.Saver()
-            checkpoint = tf.train.get_checkpoint_state("critic_nn")
+            checkpoint = tf.train.get_checkpoint_state("critic_nn_1")
             if checkpoint and checkpoint.model_checkpoint_path:
                 self.saver.restore(self.sess, checkpoint.model_checkpoint_path)
                 print("Successfully loaded:", checkpoint.model_checkpoint_path)
@@ -186,6 +186,6 @@ class Critic(object):
 
     def save_model(self, save_step):
         if self.time_step % save_step == 0:
-            self.saver.save(self.sess, 'critic_nn/' + 'network' + '-critic' + str(INDEX), global_step=self.time_step)
+            self.saver.save(self.sess, 'critic_nn_2/' + 'network' + '-critic', global_step=self.time_step)
 
 
