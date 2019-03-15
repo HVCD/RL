@@ -25,7 +25,7 @@ def reset(state_csv):
 
 def output_action(action):
     acc = str(action[0][0])
-    phi = str(action[0][1])
+    phi = str(action[1][0])
     output_string = acc + '\t' + phi + '\n'
     action_file = open('HVCD\action.txt', mode='w')
     action_file.write(output_string)
@@ -76,7 +76,7 @@ STEP_CSV = 'HVCD\step.csv'
 if __name__ == "__main__":
     # 初始化
     sess = tf.Session()
-    actor = Actor(sess, state_dim, action1_bound=[0, 0.50], action2_bound=[-3.14/6, 3.14/6])
+    actor = Actor(sess, state_dim, action_bound=[LOWER_BOUND, UPPER_BOUND]）
     critic = Critic(sess, state_dim)
     sess.run(tf.global_variables_initializer())
 
