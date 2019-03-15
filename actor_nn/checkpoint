@@ -1,2 +1,4 @@
-model_checkpoint_path: "network-actor-1000"
+model_checkpoint_path: "network-actor-3000"
 all_model_checkpoint_paths: "network-actor-1000"
+all_model_checkpoint_paths: "network-actor-2000"
+all_model_checkpoint_paths: "network-actor-3000"

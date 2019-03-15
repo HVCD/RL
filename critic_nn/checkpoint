@@ -1,2 +1,4 @@
-model_checkpoint_path: "network-critic-1000"
+model_checkpoint_path: "network-critic-3000"
 all_model_checkpoint_paths: "network-critic-1000"
+all_model_checkpoint_paths: "network-critic-2000"
+all_model_checkpoint_paths: "network-critic-3000"
