@@ -18,6 +18,7 @@ import numpy as np
 np.random.seed(2)
 tf.set_random_seed(2)  # reproducible
 GAMMA = 0.95
+INDEX = 1
 
 
 class Actor(object):
@@ -125,12 +126,12 @@ class Actor(object):
 
     def choose_action(self, s):
         # s = s[np.newaxis, :]
-        action = [self.action1, self.action2]
-        return self.sess.run(action, {self.s: s})  # get probabilities for all actions
+
+        return self.sess.run(self.action, {self.s: s})  # get probabilities for all actions
 
     def save_model(self, save_step):
         if self.time_step % save_step == 0:
-            self.saver.save(self.sess, 'actor_nn/' + 'network' + '-actor', global_step=self.time_step)
+            self.saver.save(self.sess, 'actor_nn/' + 'network' + '-actor' + str(INDEX), global_step=self.time_step)
 
 
 class Critic(object):
@@ -185,6 +186,6 @@ class Critic(object):
 
     def save_model(self, save_step):
         if self.time_step % save_step == 0:
-            self.saver.save(self.sess, 'critic_nn/' + 'network' + '-critic', global_step=self.time_step)
+            self.saver.save(self.sess, 'critic_nn/' + 'network' + '-critic' + str(INDEX), global_step=self.time_step)
 
 
